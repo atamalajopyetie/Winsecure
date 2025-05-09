@@ -27,7 +27,8 @@ function Get-NVDVulnerabilities {
         [string]$ApiKey
     )
 
-    $encodedQuery = [System.Web.HttpUtility]::UrlEncode($ProductName)
+    # Use System.Uri to URL encode the query string
+    $encodedQuery = [Uri]::EscapeDataString($ProductName)
     $url = "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=$encodedQuery"
 
     $headers = @{ "apiKey" = $ApiKey }
@@ -42,7 +43,7 @@ function Get-NVDVulnerabilities {
 }
 
 # 3. MAP VULNERABILITIES TO INSTALLED SOFTWARE
-function Scan-And-Map-Vulnerabilities {
+function Get-InstalledVulnerabilityMap {
     param (
         [string]$ApiKey
     )
@@ -83,16 +84,27 @@ if (-not $NVD_API_KEY -or $NVD_API_KEY -eq "YOUR_NVD_API_KEY_HERE") {
 }
 
 Write-Host "`nStarting Windows Vulnerability Scan..." -ForegroundColor Green
-$finalResults = Scan-And-Map-Vulnerabilities -ApiKey $NVD_API_KEY
+$finalResults = Get-InstalledVulnerabilityMap -ApiKey $NVD_API_KEY
 
 if ($finalResults.Count -gt 0) {
     Write-Host "`nVULNERABILITIES FOUND:" -ForegroundColor Yellow
     $finalResults | Format-Table -AutoSize
 
-    # Export results to CSV
-    $csvPath = "C:\Users\Manas\OneDrive\Desktop\Winsecure\vulnreport.csv"
-    $finalResults | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
-    Write-Host "`nReport saved to: $csvPath" -ForegroundColor Green
+    # Dynamically set the base directory based on the script location
+    $BASE_DIR = $PSScriptRoot
+    $TEMP_DIR = Join-Path $BASE_DIR "\temp"
+    $OUTPUT_PATH = Join-Path $TEMP_DIR "system_scan_results.json"
+
+    # Ensure the temp folder exists
+    if (-not (Test-Path $TEMP_DIR)) {
+        Write-Host "Temp folder not found, creating it..." -ForegroundColor Yellow
+        New-Item -ItemType Directory -Path $TEMP_DIR
+    }
+
+    # Export results to JSON
+    $finalResults | ConvertTo-Json -Depth 5 | Out-File $OUTPUT_PATH -Encoding utf8
+
+    Write-Host "`nReport saved to: $OUTPUT_PATH" -ForegroundColor Green
 } else {
     Write-Host "`nNo known CVEs detected for installed software." -ForegroundColor Green
 }
