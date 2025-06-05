@@ -5,14 +5,19 @@ import time
 import psutil
 import subprocess
 import ipaddress
-import sys  # for exiting the script
+import sys  
+
 # -----------------------
 # Configuration
 # -----------------------
-API_KEY = "bfb29512f5fb979151e83b5df460288b13fcc7b9dc5d5c4e994a75b57b89aa1e"  # <-- Add your VirusTotal API key
+
+API_KEY = os.getenv("VIRUSTOTAL_API_KEY")  
+if not API_KEY:
+    print("[ERROR] Environment variable 'VIRUSTOTAL_API_KEY' not set.")
+    sys.exit(1)
+
 HEADERS = {"x-apikey": API_KEY}
 
-# Assuming 'temp' folder already exists under /app section of the codebase
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMP_DIR = os.path.join(BASE_DIR, "core", "temp")
 if not os.path.isdir(TEMP_DIR):
@@ -88,9 +93,9 @@ def run_network_scan():
         print(f"Analyzing {ip}...")
         category = check_ip_virustotal(ip)
         results.append([ip, category])
-        time.sleep(15)  # VirusTotal free API rate limit
+        time.sleep(15)  
 
-    # Save results to JSON temporarily
+   
     try:
         with open(JSON_PATH, 'w') as f:
             json.dump(results, f, indent=4)
