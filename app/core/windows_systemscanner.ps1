@@ -76,10 +76,11 @@ function Get-InstalledVulnerabilityMap {
 # ----------------------------
 # MAIN SCRIPT
 # ----------------------------
-$NVD_API_KEY = "3b2d3210-e337-4cb8-a391-a2fcc5243992"  # INSERT YOUR NVD API KEY HERE
 
-if (-not $NVD_API_KEY -or $NVD_API_KEY -eq "YOUR_NVD_API_KEY_HERE") {
-    Write-Host "Please insert your NVD API key in the script." -ForegroundColor Red
+$NVD_API_KEY = $env:NVD_API_KEY  # <-- Get from environment variable
+
+if (-not $NVD_API_KEY) {
+    Write-Host "Environment variable 'NVD_API_KEY' is not set. Please set it before running the script." -ForegroundColor Red
     exit
 }
 
@@ -98,7 +99,7 @@ if ($finalResults.Count -gt 0) {
     # Ensure the temp folder exists
     if (-not (Test-Path $TEMP_DIR)) {
         Write-Host "Temp folder not found, creating it..." -ForegroundColor Yellow
-        New-Item -ItemType Directory -Path $TEMP_DIR
+        New-Item -ItemType Directory -Path $TEMP_DIR | Out-Null
     }
 
     # Export results to JSON
