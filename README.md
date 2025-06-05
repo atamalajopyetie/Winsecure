@@ -1,18 +1,18 @@
-#Winsecure Vulenrability Scanner
+# Winsecure Vulenrability Scanner
 
 This is an in progress tool which is getting ready to scan your networks and window systems securely. The scan data will remain limited to your machine itself, this is getting ready as a command line tool and a remote exectution web tool. 
 
-###Features
+### Features
 - Active network scans and identifying malicious IPs.
 - System scans which maps the softwares in your windows system to it's respective CVEs available for specific version.
 - Reports of vulnerabilites in .pdf and .html format.
 
-###Future Scope 
+### Future Scope 
 - Building this prototype a ready to use tool for CMD.
 - Integrating AI to provide reasonable solutions. 
 - Building a remote execution website thats allows scripts to run remotely without agents on the end system.
 
-###Structure of the Repository
+### Structure of the Repository
 ├── __pycache__/
 ├── app/
 │   ├── __pycache__/
